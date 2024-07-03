@@ -3,8 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      Portal de Empregos</title>
+    <title>Portal de Vagas</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -20,7 +19,10 @@
     <main>
       <section id="hero">
         <h1>Encontre sua vaga</h1>
-        <button>Buscar vagas</button>
+        <form id="search-form">
+          <input type="text" id="search-input" placeholder="Buscar vagas..." />
+          <button type="submit">Buscar</button>
+        </form>
       </section>
       <section id="jobs">
         <h2>Buscar vagas</h2>
@@ -28,27 +30,33 @@
       </section>
       <section id="companies">
         <h2>Principais Empresas</h2>
-        <ul id="company-list"></ul>
+        <ul id="companies-list"></ul>
       </section>
-      <section id="candidates">
-        <h2>Candidatos</h2>
-        <p>Envie seu currículo</p>
-      </section>
-      <section class="application-form">
-        <h2>Enviar currículo</h2>
-        <form id="application-form">
-          <label for="name">Nome:</label>
-          <input type="text" id="name" name="name" /><br /><br />
-          <label for="email">Email:</label>
-          <input type="email" id="email" name="email" /><br /><br />
-          <label for="cv">Enviar CV:</label>
-          <input type="file" id="cv" name="cv" /><br /><br />
-          <button id="submit-btn">Enviar currículo</button>
-        </form>
-      </section>
-      <section class="status-update">
-        <h2>Status atualizado</h2>
-        <p id="status-message"></p>
+      <section id="candidates" style="display: none">
+        <h2>Formulário</h2>
+        <section class="application-form" id="application-form">
+          <h2>Enviar currículo para <span id="job-title"></span></h2>
+          <form id="apply-form">
+            <input type="hidden" id="job-id" name="jobId" />
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" required /><br /><br />
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required /><br /><br />
+            <label for="cv">Enviar CV:</label>
+            <input
+              type="file"
+              id="cv"
+              name="cv"
+              accept=".pdf,.doc,.docx"
+              required
+            /><br /><br />
+            <button type="submit" id="submit-btn">Enviar currículo</button>
+          </form>
+          <section class="status-update">
+            <h2>Status atualizado do currículo</h2>
+            <p id="status-message"></p>
+          </section>
+        </section>
       </section>
     </main>
     <script src="app.js"></script>

@@ -1,63 +1,149 @@
- 
-// Gerando lista de empregos 
-const jobList = [
-    { title: "Engenheiro de Software", company: "Google", location: "Nova York" },
-    { title: "Cientista de Dados", company: "Amazon", location: "Seattle" },
-    { title: "Desenvolvedor Full Stack", company: "Microsoft", location: "Redmond" },
-    // Adicione mais empregos...
-]; 
-  
-const jobListHTML = jobList.map((job) => {
-    return `<li>
-        <h3>${job.title}</h3>
-        <p>${job.company} - ${job.location}</p>
-    </li>`;
-}).join('');
-  
-document.getElementById('job-list').innerHTML = jobListHTML;  
+document.addEventListener("DOMContentLoaded", () => {
+  const jobListContainer = document.getElementById("job-list");
+  const companiesListContainer = document.getElementById("companies-list");
+  const applicationForm = document.getElementById("application-form");
+  const candidatesSection = document.getElementById("candidates");
+  const jobTitleElement = document.getElementById("job-title");
+  const jobIdInput = document.getElementById("job-id");
+  const statusMessage = document.getElementById("status-message");
 
-// Gerando lista de empresas
-const companyList = [
-    { name: "Google", description: "Gigante da tecnologia" },
-    { name: "Amazon", description: "Líder em comércio eletrônico" },
-    { name: "Microsoft", description: "Pioneira em software" },
-    // Adicione mais empresas...
-]; 
-  
-const companyListHTML = companyList.map((company) => {  
-    return `<li>  
-        <h3>${company.name}</h3>  
-        <p>${company.description}</p>  
-    </li>`;  
-}).join('');  
-  
-document.getElementById('company-list').innerHTML = companyListHTML;  
+  // Carregar e exibir a lista de vagas
+  function loadJobs() {
+    fetch("http://localhost:3000/jobs")
+      .then((response) => response.json())
+      .then((data) => {
+        const jobListHTML = data
+          .map((job) => {
+            return `<li data-id="${job.id}" data-title="${job.title}">
+                          <h3>${job.title}</h3>
+                          <p>${job.company} - ${job.location}</p>
+                          <button class="select-btn">Selecionar</button>
+                      </li>`;
+          })
+          .join("");
+        jobListContainer.innerHTML = jobListHTML;
 
-const applyBtn = document.getElementById('apply-btn');
-const applicationForm = document.getElementById('application-form');
-const submitBtn = document.getElementById('submit-btn');
-const statusMessage = document.getElementById('status-message');
+        // Adicionar evento de clique para o botão "Selecionar"
+        const selectButtons = document.querySelectorAll(".select-btn");
+        selectButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const jobId = button.parentElement.getAttribute("data-id");
+            const jobTitle = button.parentElement.getAttribute("data-title");
+            showApplicationForm(jobId, jobTitle);
+          });
+        });
+      })
+      .catch((error) =>
+        console.error("Erro ao carregar lista de vagas:", error)
+      );
+  }
 
-applyBtn.addEventListener('click', () => {
-    applicationForm.style.display = 'block';
-});
+  // Carregar e exibir a lista de empresas
+  function loadCompanies() {
+    fetch("http://localhost:3000/companies")
+      .then((response) => response.json())
+      .then((data) => {
+        const companiesListHTML = data
+          .map((company) => {
+            return `<li>
+                          <h3>${company.company}</h3>
+                          <p>${company.description} - ${company.location}</p>
+                      </li>`;
+          })
+          .join("");
+        companiesListContainer.innerHTML = companiesListHTML;
+      })
+      .catch((error) =>
+        console.error("Erro ao carregar lista de empresas:", error)
+      );
+  }
 
-submitBtn.addEventListener('click', (e) => {
+  // Exibir o formulário de candidatura preenchido com a vaga selecionada
+  function showApplicationForm(jobId, jobTitle) {
+    jobTitleElement.textContent = jobTitle;
+    jobIdInput.value = jobId;
+    candidatesSection.style.display = "block"; // Mostrar a seção de candidatos
+    statusMessage.textContent = ""; // Limpar mensagem de status ao mostrar o formulário
+  }
+
+  // Carregar lista de vagas e empresas ao carregar a página
+  loadJobs();
+  loadCompanies();
+
+  // Lidar com o envio do formulário
+  document.getElementById("apply-form").addEventListener("submit", (e) => {
+    console.log("Formulário enviado!");
     e.preventDefault();
     const formData = new FormData(applicationForm);
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'https://example.com/submit-application', true);
-    xhr.onload = function() {
-        if(xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            if (response.stage === 'cv_review') {
-                statusMessage.textContent = 'Your CV is being reviewed';
-            } else if (response.stage === 'cv_selected') {
-                statusMessage.textContent = 'Your CV has been selected';
-            } else if (response.stage === 'ecruiter_checking') {
-                statusMessage.textContent = 'A recruiter is checking your application';
-            }
+
+    fetch("http://localhost:3000/apply", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data); // Verificar o que está sendo recebido da API
+        if (data.status === "success") {
+          statusMessage.textContent =
+            "Seu CV foi enviado com sucesso para revisão.";
+          console.log("Status atualizado com sucesso:", data.status);
+          // Atualizar lista de vagas e empresas após envio do currículo
+          loadJobs();
+          loadCompanies();
+        } else if (data.status === "error") {
+          statusMessage.textContent = "Ocorreu um erro ao enviar o CV.";
+        } else {
+          statusMessage.textContent = "Status desconhecido.";
         }
-    };
-    xhr.send(formData);
+      })
+      .catch((error) => {
+        console.error("Erro ao enviar formulário:", error);
+        statusMessage.textContent = "Ocorreu um erro ao enviar o formulário.";
+      });
+  });
+
+  // Lidar com o envio do formulário de busca de vagas
+  document.getElementById("search-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const searchInput = document.getElementById("search-input").value.trim();
+    if (searchInput === "") {
+      loadJobs(); // Carregar todas as vagas se o campo de busca estiver vazio
+    } else {
+      searchJobs(searchInput); // Pesquisar vagas com base no termo digitado
+    }
+  });
+
+  // Função para buscar vagas com base no termo de busca
+  function searchJobs(searchTerm) {
+    fetch(`http://localhost:3000/search?q=${encodeURIComponent(searchTerm)}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erro ao buscar vagas");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const jobListHTML = data
+          .map((job) => {
+            return `<li data-id="${job.id}" data-title="${job.title}">
+                      <h3>${job.title}</h3>
+                      <p>${job.company} - ${job.location}</p>
+                      <button class="select-btn">Selecionar</button>
+                  </li>`;
+          })
+          .join("");
+        jobListContainer.innerHTML = jobListHTML;
+
+        // Adicionar evento de clique para o botão "Selecionar"
+        const selectButtons = document.querySelectorAll(".select-btn");
+        selectButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const jobId = button.parentElement.getAttribute("data-id");
+            const jobTitle = button.parentElement.getAttribute("data-title");
+            showApplicationForm(jobId, jobTitle);
+          });
+        });
+      })
+      .catch((error) => console.error("Erro ao pesquisar vagas:", error));
+  }
 });
