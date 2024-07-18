@@ -10,6 +10,8 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(express.static('public'));
+
 app.use(bodyParser.json());
 
 // Lista de empregos
@@ -25,6 +27,10 @@ const companiesList = [
     { company: "Amazon", description: "Líder no mercado de varejo", location: "Seattle" },
     { company: "Microsoft", description: "Desenvolvimento de software", location: "Redmond" }
 ];
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname+ '/index.html') 
+})
 
 // Rota para obter a lista de empregos
 app.get('/jobs', (req, res) => {
