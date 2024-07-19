@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+const webApp = "https://jrvagas.onrender.com";
+const port = 3000;
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -60,6 +61,6 @@ app.get('/search', (req, res) => {
 });
 
 // Inicia o servidor
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+app.listen(webApp, port, () => {
+    console.log(`Servidor rodando em ${webApp}:${port}`);
 });
