@@ -60,6 +60,6 @@ app.get('/search', (req, res) => {
 });
 
 // Inicia o servidor
-app.listen(webApp, port, () => {
+app.listen(port, () => {
     console.log(`Servidor rodando em https://jrvagas.onrender.com:${port}`);
 });
