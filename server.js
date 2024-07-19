@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-const webApp = "https://jrvagas.onrender.com";
 const port = 3000;
 
 app.use((req, res, next) => {
@@ -62,5 +61,5 @@ app.get('/search', (req, res) => {
 
 // Inicia o servidor
 app.listen(webApp, port, () => {
-    console.log(`Servidor rodando em ${webApp}:${port}`);
+    console.log(`Servidor rodando em https://jrvagas.onrender.com:${port}`);
 });
